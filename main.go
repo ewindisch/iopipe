@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/codegangsta/cli"
+	"github.com/idada/go-v8"
+
 	"log"
 	"os"
 	"strings"
@@ -118,6 +120,21 @@ func cmdFetch(c *cli.Context) {
 
 	msg := fromObj.read()
 	println(msg)
+
+	script, err := ioutil.ReadFile("test.js")
+	if err != nil {
+		println("Error!")
+	}
+
+	// Transform message
+	engine := v8.NewEngine()
+	script := engine.Compile([]byte(script), nil, nil)
+	context := engine.NewContext(nil)
+
+	context.Scope(func(cs v8.ContextScope) {
+		result := script.Run()
+		println(result.ToString())
+	})
 }
 
 // Handle the 'exec' CLI commmand.
