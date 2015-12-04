@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/codegangsta/cli"
-	"github.com/idada/go-v8"
+	//"github.com/ry/v8worker"
+	"github.com/mhrdev/v8.go"
 
 	"log"
 	"os"
