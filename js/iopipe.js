@@ -191,6 +191,15 @@ IOpipe.prototype.define = function() {
         } else {
           done = this._exec_driver.invoke({ id: arg }, context)
         }
+      } else if (typeof(arg) === Promise) {
+        /* Handles promises passed to us which return composable
+         * functions. */
+        arg.then(function(data) {
+          // can't create done variable here.. so this is interesting.
+          context.succeed(data())
+        }).catch(e) {
+          context.fail(e)
+        }
       } else {
         throw new Error("ERROR: unknown argument: " + arg)
       }
@@ -198,6 +207,25 @@ IOpipe.prototype.define = function() {
 
     // Call function with input data.
     done(largs[0])
+  }
+}
+
+/**
+   Returns a function which calls the specified function
+   and arguments. Use this method for wrapping functions which
+   return Promises.
+*/
+IOpipe.prototype.apply_promise = function() {
+  var args = [].slice.call(arguments)
+  //this.define.apply(this, l)()
+  return function(event, context) {
+    args[0].apply(args.slice(1)).then(
+      function(data) {
+        context.succeed(data)
+      }
+    ).catch(e) {
+      context.fail(e)
+    }
   }
 }
 
